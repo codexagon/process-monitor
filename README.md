@@ -1,6 +1,6 @@
 # Process Monitor
 
-A basic process monitor for Linux.
+A basic process monitor for Linux written in C. Displays real-time process information by reading from the `/proc/` filesystem.
 
 ## Building
 ```bash
@@ -12,5 +12,8 @@ gcc -o pmonitor main.c
 ./pmonitor
 ```
 
+Press `q` or `Q` to quit.
+
 ## Note
-Only works on Linux. Currently only shows running processes at one instant (when the program is run).
+- Only works on Linux, because the program reads from the `/proc/` filesystem.
+- Scrolling functionality is not available yet, so only the first N processes are displayed based on terminal height.
