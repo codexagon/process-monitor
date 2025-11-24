@@ -16,4 +16,3 @@ Press `q` or `Q` to quit.
 
 ## Note
 - Only works on Linux, because the program reads from the `/proc/` filesystem.
-- Scrolling functionality is not available yet, so only the first N processes are displayed based on terminal height.
