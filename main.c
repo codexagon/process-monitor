@@ -9,7 +9,7 @@
 #include <termios.h>
 #include <unistd.h>
 
-void print_processes(DIR**, struct dirent**, int);
+void print_processes(DIR**, struct dirent**, int, int);
 void tokenize_data(char *, char **);
 bool check_if_process(char *);
 FILE *get_stat_file(char *);
@@ -33,6 +33,7 @@ int main() {
   int success = ioctl(STDOUT_FILENO, TIOCGWINSZ, &win);
   if (success != 0) return 2;
   
+  int start_process = 0;
   int max_processes = win.ws_row - 3;
 
   printf("\033[?25l"); // hide cursor
@@ -54,8 +55,19 @@ int main() {
     if (c == 'q' || c == 'Q') {
       running = false;
       break;
-    }
+    } else if (c == '\033') {
+      int next1 = getchar();
+      int next2 = getchar();
 
+      if (next1 == '[') {
+        if (next2 == 'A') {
+          if (start_process > 0) start_process--;
+        } else if (next2 == 'B') {
+          start_process++;
+        }
+      }
+    }
+     
     printf("\033[3H"); // move cursor to line 3, just below header
 
     DIR* proc = opendir("/proc");
@@ -64,12 +76,12 @@ int main() {
     struct dirent* nextproc = readdir(proc);
 
     // print processes
-    print_processes(&proc, &nextproc, max_processes);
+    print_processes(&proc, &nextproc, start_process, max_processes);
     printf("\033[J"); // clear from cursor to end
     fflush(stdout);
 
     closedir(proc);
-    sleep(1);
+    usleep(100000);
   }
 
   tcsetattr(STDIN_FILENO, TCSANOW, &original_config);
@@ -79,7 +91,7 @@ int main() {
   fflush(stdout);
 }
 
-void print_processes(DIR** procdir, struct dirent** nextprocdir, int max_proc) {
+void print_processes(DIR** procdir, struct dirent** nextprocdir, int start_proc, int max_proc) {
   int proc_counter = 0;
 
   DIR* proc = *procdir;
@@ -88,7 +100,7 @@ void print_processes(DIR** procdir, struct dirent** nextprocdir, int max_proc) {
     char *dir_name = nextproc->d_name;
 
     if (check_if_process(dir_name)) {
-      if (proc_counter >= max_proc) return;
+      if (proc_counter >= max_proc + start_proc) return;
 
       char stat_str[4096];
       char *fields[60];
@@ -104,7 +116,9 @@ void print_processes(DIR** procdir, struct dirent** nextprocdir, int max_proc) {
       tokenize_data(stat_str, fields);
 
       // list all processes and some data
-      printf("%6s  %-40.40s %-6s %8s %10s %10s %8s %15s %12i\n", fields[0], fields[1], fields[2], fields[3], fields[13], fields[14], fields[19], fields[22], atoi(fields[23]) * 4096);
+      if (proc_counter >= start_proc) {
+        printf("%6s  %-40.40s %-6s %8s %10s %10s %8s %15s %12i\n", fields[0], fields[1], fields[2], fields[3], fields[13], fields[14], fields[19], fields[22], atoi(fields[23]) * 4096);
+      }
       proc_counter++;
 
       fclose(statfile);
