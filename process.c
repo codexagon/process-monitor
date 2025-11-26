@@ -58,7 +58,7 @@ Process *get_processes(DIR** procdir, struct dirent** nextprocdir, int *out_coun
   return processes;
 }
 
-void add_process(Process **proc_arr, size_t *count, size_t *capacity, Process p) {
+void add_process(Process **proc_arr, int *count, size_t *capacity, Process p) {
   if (*count >= *capacity) {
     *capacity = (*capacity == 0) ? 64 : (*capacity * 2);
     *proc_arr = realloc(*proc_arr, (*capacity) * sizeof(Process));
