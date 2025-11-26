@@ -8,13 +8,13 @@ void display_header(int term_cols) {
   printf("\n");
 }
 
-void display_processes(Process **processes, int count, int start, int max) {
+void display_processes(Process *processes, int count, int start, int max) {
   int end = (max > 0 && start + max < count) ? start + max : count;
 
   for (int i = start; i < end; i++) {
-    Process *p = &(*processes)[i];
+    Process *p = &(processes[i]);
     
-    printf("%6i %-40s %6c %8i %10lu %10lu %8li %15llu %12li\n",
+    printf("%6i  %-40s %6c %8i %10lu %10lu %8li %15llu %12li\n",
       p->pid, p->name, p->state, p->ppid, p->utime, p->stime, p->nice, p->vsize, p->rss
     );
   }

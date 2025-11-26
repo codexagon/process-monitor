@@ -70,7 +70,7 @@ int main() {
     Process *processes = get_processes(&proc, &nextproc, &count);
 
     // print processes
-    display_processes(&processes, count, start_process, max_processes);
+    display_processes(processes, count, start_process, max_processes);
     printf("\033[J"); // clear from cursor to end
     fflush(stdout);
 
