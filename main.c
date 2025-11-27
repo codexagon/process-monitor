@@ -2,6 +2,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
@@ -38,6 +39,10 @@ int main() {
 
   display_header(win.ws_col);
 
+  int count = 0;
+  Process *processes = NULL;
+  int iteration = 0;
+
   while (running) {
     int c = getchar();
 
@@ -65,9 +70,12 @@ int main() {
 
     struct dirent* nextproc = readdir(proc);
 
-    // get processes
-    int count = 0;
-    Process *processes = get_processes(&proc, &nextproc, &count);
+    iteration++;
+    if (iteration >= 40) {
+      free(processes);
+      processes = get_processes(&proc, &nextproc, &count);
+      iteration = 0;
+    }
 
     // print processes
     display_processes(processes, count, start_process, max_processes);
@@ -75,8 +83,11 @@ int main() {
     fflush(stdout);
 
     closedir(proc);
-    usleep(100000);
+
+    usleep(25000);
   }
+
+  free(processes);
 
   tcsetattr(STDIN_FILENO, TCSANOW, &original_config);
   printf("\033[2J\033[H"); // clear screen, move cursor to home
