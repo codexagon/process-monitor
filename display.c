@@ -1,7 +1,7 @@
 #include "display.h"
 
 void display_header(int term_cols) {
-  printf("%6s  %-40s %-6s %8s %10s %10s %8s %15s %12s\n", "PID", "NAME", "STATE", "PPID", "UTIME", "STIME", "NICE", "VSIZE", "RSS");
+  printf("%6s  %-40s %-6s %8s %10s %10s %8s %15s %12s\n", "PID", "NAME", "STATE", "PPID", "UTIME", "STIME", "NICE", "VSIZE", "MEM%");
   for (int c = 0; c < term_cols; c++) {
     printf("-");
   }
@@ -16,6 +16,7 @@ void display_processes(Process *processes, int count, int start, int max) {
 
     char *state_color;
     char *nice_color;
+    char *mem_color;
 
     if (p->state == 'R') {
       state_color = COLOR_GREEN;
@@ -36,9 +37,15 @@ void display_processes(Process *processes, int count, int start, int max) {
     } else {
       nice_color = COLOR_GRAY;
     }
+
+    if (p->mem_percent == 0) {
+      mem_color = COLOR_GRAY;
+    } else {
+      mem_color = COLOR_RESET;
+    }
     
-    printf("%6i  %-40s %s%6c%s %8i %10lu %10lu %s%8li%s %15llu %12li\n",
-      p->pid, p->name, state_color, p->state, COLOR_RESET, p->ppid, p->utime, p->stime, nice_color, p->nice, COLOR_RESET, p->vsize, p->rss
+    printf("%6i  %-40s %s%6c%s %8i %10lu %10lu %s%8li%s %15llu %s%12.2f%s\n",
+      p->pid, p->name, state_color, p->state, COLOR_RESET, p->ppid, p->utime, p->stime, nice_color, p->nice, COLOR_RESET, p->vsize, mem_color, p->mem_percent, COLOR_RESET
     );
   }
 }

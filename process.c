@@ -9,6 +9,8 @@ Process *get_processes(DIR** procdir, struct dirent** nextprocdir, int *out_coun
   int count = 0;
   size_t capacity = 0;
 
+  long total_memory = get_total_memory();
+
   DIR* proc = *procdir;
   struct dirent* nextproc = *nextprocdir;
   while (nextproc != NULL) {
@@ -42,7 +44,9 @@ Process *get_processes(DIR** procdir, struct dirent** nextprocdir, int *out_coun
       proc.nice = atol(fields[18]);
 
       proc.vsize = strtoull(fields[22], NULL, 10);
-      proc.rss = atol(fields[23]) * 4096;
+
+      long rss = atol(fields[23]) * 4;
+      proc.mem_percent = ((float)rss / total_memory) * 100;
       
       // push it to process array
       add_process(&processes, &count, &capacity, proc);
@@ -69,6 +73,20 @@ void add_process(Process **proc_arr, int *count, size_t *capacity, Process p) {
   }
 
   (*proc_arr)[(*count)++] = p;
+}
+
+long get_total_memory() {
+  char line[256];
+  FILE *memory_file = fopen("/proc/meminfo", "r");
+  if (!memory_file) return 0;
+
+  fgets(line, sizeof(line), memory_file);
+  fclose(memory_file);
+
+  long total_memory;
+  sscanf(line, "MemTotal: %ld kB", &total_memory);
+
+  return total_memory;
 }
 
 void tokenize_data(char *stat_str, char **fields) {
