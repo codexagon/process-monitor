@@ -30,7 +30,7 @@ int main() {
   if (success != 0) return 2;
   
   int start_process = 0;
-  int max_processes = win.ws_row - 3;
+  int max_processes = win.ws_row - 2;
 
   printf("\033[?25l"); // hide cursor
   printf("\033[?1049h"); // enter alternate buffer
@@ -58,12 +58,12 @@ int main() {
         if (next2 == 'A') {
           if (start_process > 0) start_process--;
         } else if (next2 == 'B') {
-          start_process++;
+          if (start_process + max_processes <= count) start_process++;
         }
       }
     }
      
-    printf("\033[3H"); // move cursor to line 3, just below header
+    printf("\033[2H"); // move cursor to line 2
 
     DIR* proc = opendir("/proc");
     if (proc == NULL) return 1;
