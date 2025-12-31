@@ -1,8 +1,8 @@
 #include "display.h"
 
 void display_header(int term_cols) {
-  printf("\033[42m\033[30m%6s  %-50s %-1s %6s %6s %10s %10s %6s %15s", 
-    "PID", "NAME", "S", "PPID", "MEM%", "UTIME", "STIME", "NICE", "VSIZE"
+  printf("\033[42m\033[30m%6s  %-50s %-1s %4s %4s %6s %6s %10s %10s %15s", 
+    "PID", "NAME", "S", "PRI", "NC", "PPID", "MEM%", "UTIME", "STIME", "VSIZE"
   );
   for (int i = 119; i < term_cols; i++) printf(" ");
   printf("\033[0m\n");
@@ -44,13 +44,14 @@ void display_processes(Process *processes, int count, int start, int max) {
       mem_color = COLOR_RESET;
     }
     
-    printf("%6i  %-50s %s%1c%s %6i %s%6.2f%s %10lu %10lu %s%6li%s %15llu\n",
+    printf("%6i  %-50s %s%1c%s %4li %s%4li%s %6i %s%6.2f%s %10lu %10lu  %15llu\n",
       p->pid, p->name, 
       state_color, p->state, COLOR_RESET, 
+      p->priority, 
+      nice_color, p->nice, COLOR_RESET, 
       p->ppid, 
       mem_color, p->mem_percent, COLOR_RESET, 
       p->utime, p->stime, 
-      nice_color, p->nice, COLOR_RESET, 
       p->vsize
     );
   }
