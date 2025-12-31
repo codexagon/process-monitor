@@ -4,10 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-Process *get_processes(DIR** procdir, struct dirent** nextprocdir, int *out_count) {
-  Process *processes = NULL;
-  int count = 0;
-  size_t capacity = 0;
+ProcessList get_processes(DIR** procdir, struct dirent** nextprocdir) {
+  ProcessList process_list = {0};
 
   long total_memory = get_total_memory();
 
@@ -49,7 +47,7 @@ Process *get_processes(DIR** procdir, struct dirent** nextprocdir, int *out_coun
       proc.mem_percent = ((float)rss / total_memory) * 100;
       
       // push it to process array
-      add_process(&processes, &count, &capacity, proc);
+      add_process(&process_list, proc);
 
       fclose(statfile);
     }
@@ -57,22 +55,21 @@ Process *get_processes(DIR** procdir, struct dirent** nextprocdir, int *out_coun
     nextproc = readdir(proc);
   }
 
-  *out_count = count;
-
-  return processes;
+  return process_list;
 }
 
-void add_process(Process **proc_arr, int *count, size_t *capacity, Process p) {
-  if (*count >= *capacity) {
-    *capacity = (*capacity == 0) ? 64 : (*capacity * 2);
-    *proc_arr = realloc(*proc_arr, (*capacity) * sizeof(Process));
-    if (*proc_arr == NULL) {
-      printf("realloc failed\n");
+void add_process(ProcessList *list, Process p) {
+  if (list->count >= list->capacity) {
+    list->capacity = (list->capacity == 0) ? 16 : (list->capacity * 2);
+    Process *tmp = realloc(list->processes, (list->capacity) * sizeof(Process));
+    if (tmp == NULL) {
+      printf("Failed to reallocate processes list.\n");
       exit(EXIT_FAILURE);
     }
+    list->processes = tmp;
   }
 
-  (*proc_arr)[(*count)++] = p;
+  (list->processes)[(list->count)++] = p;
 }
 
 long get_total_memory() {

@@ -39,8 +39,8 @@ int main() {
 
   display_header(win.ws_col);
 
-  int count = 0;
-  Process *processes = NULL;
+  ProcessList processes = {0};
+
   int iteration = 0;
 
   while (running) {
@@ -58,7 +58,7 @@ int main() {
         if (next2 == 'A') {
           if (start_process > 0) start_process--;
         } else if (next2 == 'B') {
-          if (start_process + max_processes <= count) start_process++;
+          if (start_process + max_processes <= processes.count) start_process++;
         }
       }
     }
@@ -72,13 +72,13 @@ int main() {
 
     iteration++;
     if (iteration >= 40) {
-      free(processes);
-      processes = get_processes(&proc, &nextproc, &count);
+      free(processes.processes);
+      processes = get_processes(&proc, &nextproc);
       iteration = 0;
     }
 
     // print processes
-    display_processes(processes, count, start_process, max_processes);
+    display_processes(&processes, start_process, max_processes);
     printf("\033[J"); // clear from cursor to end
     fflush(stdout);
 
@@ -87,7 +87,7 @@ int main() {
     usleep(25000);
   }
 
-  free(processes);
+  free(processes.processes);
 
   tcsetattr(STDIN_FILENO, TCSANOW, &original_config);
   printf("\033[2J\033[H"); // clear screen, move cursor to home

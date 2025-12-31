@@ -11,6 +11,6 @@
 #define COLOR_RESET "\033[0m"
 
 void display_header(int term_cols);
-void display_processes(Process *processes, int count, int start, int max);
+void display_processes(ProcessList *list, int start, int max);
 
 #endif
