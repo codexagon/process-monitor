@@ -58,7 +58,7 @@ int main() {
         if (next2 == 'A') {
           if (start_process > 0) start_process--;
         } else if (next2 == 'B') {
-          if (start_process + max_processes <= processes.count) start_process++;
+          if (start_process + max_processes <= (int)processes.count) start_process++;
         }
       }
     }

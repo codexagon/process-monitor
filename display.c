@@ -9,7 +9,7 @@ void display_header(int term_cols) {
 }
 
 void display_processes(ProcessList *list, int start, int max) {
-  int end = (max > 0 && start + max < list->count) ? start + max : list->count;
+  int end = (max > 0 && start + max < (int)list->count) ? start + max : (int)list->count;
 
   for (int i = start; i < end; i++) {
     Process *p = &((list->processes)[i]);
@@ -24,7 +24,7 @@ void display_processes(ProcessList *list, int start, int max) {
       state_color = COLOR_RED;
     } else if (p->state == 'I') {
       state_color = COLOR_YELLOW;
-    } else if (p->state = 'S') {
+    } else if (p->state == 'S') {
       state_color = COLOR_GRAY;
     } else {
       state_color = COLOR_RESET;
