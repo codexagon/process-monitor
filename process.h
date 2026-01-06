@@ -2,32 +2,32 @@
 #define PROCESS_H
 
 #include <dirent.h>
-#include <stdio.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 typedef struct {
-  int pid;
-  char name[256];
-  char state;
-  int ppid;
-  
-  unsigned long utime;
-  unsigned long stime;
+	int pid;
+	char name[256];
+	char state;
+	int ppid;
 
-  long priority;
-  long nice;
+	unsigned long utime;
+	unsigned long stime;
 
-  unsigned long long vsize;
-  float mem_percent;
+	long priority;
+	long nice;
+
+	unsigned long long vsize;
+	float mem_percent;
 } Process;
 
 typedef struct {
-  Process *processes;
-  size_t count;
-  size_t capacity;
+	Process *processes;
+	size_t count;
+	size_t capacity;
 } ProcessList;
 
-ProcessList get_processes(DIR** procdir, struct dirent** nextprocdir);
+ProcessList get_processes(DIR **procdir, struct dirent **nextprocdir);
 void add_process(ProcessList *list, Process p);
 long get_total_memory();
 void tokenize_data(char *stat_str, char **fields);

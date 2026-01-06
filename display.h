@@ -2,6 +2,7 @@
 #define DISPLAY_H
 
 #include <stdio.h>
+
 #include "process.h"
 
 #define COLOR_RED "\033[31m"
