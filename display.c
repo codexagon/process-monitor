@@ -2,12 +2,13 @@
 
 void display_header(int term_cols) {
 	// clang-format off
-	printf("\033[42m\033[30m%6s  %-50s %-1s %4s %4s %6s %6s %10s %10s %15s", 
-		"PID", "NAME", "S", "PRI", "NC", "PPID", "MEM%", "UTIME", "STIME", "VSIZE"
+	printf(
+		"\033[42m\033[30m%6s  %-50s %-1s %4s %4s %6s %6s %6s %15s", 
+		"PID", "NAME", "S", "PRI", "NC", "PPID", "MEM%", "CPU%", "VSIZE"
 	);
 	// clang-format on
 
-	for (int i = 119; i < term_cols; i++)
+	for (int i = 107; i < term_cols; i++)
 		printf(" ");
 
 	printf("\033[0m\n");
@@ -22,6 +23,7 @@ void display_processes(ProcessList *list, int start, int max) {
 		char *state_color;
 		char *nice_color;
 		char *mem_color;
+		char *cpu_color;
 
 		if (p->state == 'R') {
 			state_color = COLOR_GREEN;
@@ -49,15 +51,21 @@ void display_processes(ProcessList *list, int start, int max) {
 			mem_color = COLOR_RESET;
 		}
 
+		if (p->cpu_percent == 0) {
+			cpu_color = COLOR_GRAY;
+		} else {
+			cpu_color = COLOR_RESET;
+		}
+
 		// clang-format off
-		printf("%6i  %-50s %s%1c%s %4li %s%4li%s %6i %s%6.2f%s %10lu %10lu  %15llu\n",
+		printf("%6i  %-50s %s%1c%s %4li %s%4li%s %6i %s%6.2f%s %s%6.2f%s %15llu\n",
 			p->pid, p->name, 
 			state_color, p->state, COLOR_RESET, 
 			p->priority, 
 			nice_color, p->nice, COLOR_RESET, 
 			p->ppid, 
 			mem_color, p->mem_percent, COLOR_RESET, 
-			p->utime, p->stime, 
+			cpu_color, p->cpu_percent, COLOR_RESET, 
 			p->vsize
 		);
 		// clang-format on

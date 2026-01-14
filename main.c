@@ -41,6 +41,7 @@ int main() {
 	display_header(win.ws_col);
 
 	ProcessList processes = {0};
+	ProcessList copy = processes;
 
 	int iteration = 0;
 
@@ -82,8 +83,9 @@ int main() {
 
 		iteration++;
 		if (iteration >= 40) {
+			copy = copy_process_list(&processes);
 			free(processes.processes);
-			processes = get_processes(&proc, &nextproc);
+			processes = get_processes(&proc, &nextproc, &copy);
 			iteration = 0;
 		}
 
