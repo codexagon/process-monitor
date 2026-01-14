@@ -64,6 +64,12 @@ int main() {
 						start_process++;
 				}
 			}
+		} else if (c == 'k') {
+			if (start_process > 0)
+				start_process--;
+		} else if (c == 'j') {
+			if (start_process + max_processes <= (int)processes.count)
+				start_process++;
 		}
 
 		printf("\033[2H"); // move cursor to line 2
