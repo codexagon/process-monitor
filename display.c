@@ -3,7 +3,7 @@
 void display_header(int term_cols) {
 	// clang-format off
 	printf(
-		"\033[42m\033[30m%6s  %-50s %-1s %4s %4s %6s %6s %6s %15s", 
+		"\033[42m\033[30m%6s  %-50s %-1s %4s %4s %6s %6s %6s %6s", 
 		"PID", "NAME", "S", "PRI", "NC", "PPID", "MEM%", "CPU%", "VSIZE"
 	);
 	// clang-format on
@@ -58,7 +58,7 @@ void display_processes(ProcessList *list, int start, int max) {
 		}
 
 		// clang-format off
-		printf("%6i  %-50s %s%1c%s %4li %s%4li%s %6i %s%6.2f%s %s%6.2f%s %15llu\n",
+		printf("%6i  %-50s %s%1c%s %4li %s%4li%s %6i %s%6.2f%s %s%6.2f%s %6s\n",
 			p->pid, p->name, 
 			state_color, p->state, COLOR_RESET, 
 			p->priority, 
@@ -66,7 +66,7 @@ void display_processes(ProcessList *list, int start, int max) {
 			p->ppid, 
 			mem_color, p->mem_percent, COLOR_RESET, 
 			cpu_color, p->cpu_percent, COLOR_RESET, 
-			p->vsize
+			p->vsize_str
 		);
 		// clang-format on
 	}

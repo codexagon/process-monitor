@@ -21,6 +21,8 @@ typedef struct {
 	long nice;
 
 	unsigned long long vsize;
+	char vsize_str[16];
+
 	float mem_percent;
 } Process;
 

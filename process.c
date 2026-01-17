@@ -53,12 +53,21 @@ ProcessList get_processes(DIR **procdir, struct dirent **nextprocdir, ProcessLis
 				}
 			}
 
-			proc.cpu_percent = ((double)(proc.utime + proc.stime - proc.prev_utime - proc.prev_stime) / (double)(process_list.total_cpu_time - process_list.prev_cpu_time)) * 100 * cores;
+			proc.cpu_percent = ((double)(proc.utime + proc.stime - proc.prev_utime - proc.prev_stime) /
+			                    (double)(process_list.total_cpu_time - process_list.prev_cpu_time)) *
+			                   100 * cores;
 
 			proc.priority = atol(fields[17]);
 			proc.nice = atol(fields[18]);
 
 			proc.vsize = strtoull(fields[22], NULL, 10);
+			if (proc.vsize >= 1024 * 1024 * 1024) {
+				snprintf(proc.vsize_str, sizeof(proc.vsize_str), "%iG", (int)(proc.vsize / (1024 * 1024 * 1024)));
+			} else if (proc.vsize >= 1024 * 1024) {
+				snprintf(proc.vsize_str, sizeof(proc.vsize_str), "%iM", (int)(proc.vsize / (1024 * 1024)));
+			} else if (proc.vsize >= 1024) {
+				snprintf(proc.vsize_str, sizeof(proc.vsize_str), "%iK", (int)(proc.vsize / 1024));
+			}
 
 			long rss = atol(fields[23]) * 4;
 			proc.mem_percent = ((float)rss / total_memory) * 100;
