@@ -1,4 +1,27 @@
 #include "display.h"
+#include "helper.h"
+
+void display_system_info(SystemInfo info) {
+	char used_mem_str[16];
+	convert_units(used_mem_str, sizeof(used_mem_str), (info.total_memory - info.free_memory) * 1024, true);
+
+	char total_mem_str[16];
+	convert_units(total_mem_str, sizeof(total_mem_str), info.total_memory * 1024, true);
+
+	printf("Memory: %s/%s used\n", used_mem_str, total_mem_str);
+
+	char used_swap_str[16];
+	convert_units(used_swap_str, sizeof(used_swap_str), (info.total_swap - info.free_swap) * 1024, true);
+
+	char total_swap_str[16];
+	convert_units(total_swap_str, sizeof(total_swap_str), info.total_swap * 1024, true);
+
+	printf("Swap: %s/%s used\n", used_swap_str, total_swap_str);
+
+	int hours = (int)(info.uptime / 3600);
+	int minutes = (int)((info.uptime - (hours * 3600)) / 60);
+	printf("Uptime: %i hours, %i minutes   Processes: %ld\n", hours, minutes, info.procs_count);
+}
 
 void display_header(int term_cols) {
 	// clang-format off
@@ -8,7 +31,7 @@ void display_header(int term_cols) {
 	);
 	// clang-format on
 
-	for (int i = 107; i < term_cols; i++)
+	for (int i = 98; i < term_cols; i++)
 		printf(" ");
 
 	printf("\033[0m\n");

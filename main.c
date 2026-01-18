@@ -9,6 +9,7 @@
 
 #include "display.h"
 #include "process.h"
+#include "sysinfo.h"
 
 int setup_terminal(struct termios *original_config, struct winsize *win);
 int restore_terminal(struct termios *original_config);
@@ -24,10 +25,11 @@ int main() {
 
 	fflush(stdout);
 
-	int start_process = 0;
-	int max_processes = win.ws_row - 2;
+	SystemInfo sysinfo = {0};
+	SystemInfo syscopy = sysinfo;
 
-	display_header(win.ws_col);
+	int start_process = 0;
+	int max_processes = win.ws_row - 6;
 
 	ProcessList processes = {0};
 	ProcessList copy = processes;
@@ -62,7 +64,7 @@ int main() {
 				start_process++;
 		}
 
-		printf("\033[2H"); // move cursor to line 2
+		// printf("\033[B"); // move cursor to line 2
 
 		DIR *proc = opendir("/proc");
 		if (proc == NULL)
@@ -72,13 +74,21 @@ int main() {
 
 		iteration++;
 		if (iteration >= 40) {
+			syscopy = copy_system_info(&sysinfo);
+			if (get_system_info(&sysinfo, &syscopy) != 0)
+				return 2;
+
 			copy = copy_process_list(&processes);
 			free(processes.processes);
-			processes = get_processes(&proc, &nextproc, &copy);
+			processes = get_processes(&proc, &nextproc, &copy, &sysinfo);
 			iteration = 0;
 		}
 
 		// print processes
+		printf("\033[0;0H");
+		display_system_info(sysinfo);
+		printf("\n");
+		display_header(win.ws_col);
 		display_processes(&processes, start_process, max_processes);
 		printf("\033[J"); // clear from cursor to end
 		fflush(stdout);
@@ -120,6 +130,6 @@ int restore_terminal(struct termios *original_config) {
 	printf("\033[2J\033[H"); // clear screen, move cursor to home
 	printf("\033[?1049l");   // exit alternate buffer
 	printf("\033[?25h");     // show cursor
-	
+
 	return 0;
 }

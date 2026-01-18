@@ -3,16 +3,12 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "helper.h"
 #include "process.h"
+#include "sysinfo.h"
 
-ProcessList get_processes(DIR **procdir, struct dirent **nextprocdir, ProcessList *cur_list) {
+ProcessList get_processes(DIR **procdir, struct dirent **nextprocdir, ProcessList *cur_list, SystemInfo *sysinfo) {
 	ProcessList process_list = {0};
-
-	long total_memory = get_total_memory();
-	int cores = sysconf(_SC_NPROCESSORS_ONLN);
-
-	process_list.prev_cpu_time = cur_list->total_cpu_time;
-	process_list.total_cpu_time = get_cpu_time();
 
 	DIR *proc = *procdir;
 	struct dirent *nextproc = *nextprocdir;
@@ -54,23 +50,17 @@ ProcessList get_processes(DIR **procdir, struct dirent **nextprocdir, ProcessLis
 			}
 
 			proc.cpu_percent = ((double)(proc.utime + proc.stime - proc.prev_utime - proc.prev_stime) /
-			                    (double)(process_list.total_cpu_time - process_list.prev_cpu_time)) *
-			                   100 * cores;
+			                    (double)(sysinfo->total_cpu_time - sysinfo->prev_cpu_time)) *
+			                   100 * (sysinfo->cores);
 
 			proc.priority = atol(fields[17]);
 			proc.nice = atol(fields[18]);
 
 			proc.vsize = strtoull(fields[22], NULL, 10);
-			if (proc.vsize >= 1024 * 1024 * 1024) {
-				snprintf(proc.vsize_str, sizeof(proc.vsize_str), "%iG", (int)(proc.vsize / (1024 * 1024 * 1024)));
-			} else if (proc.vsize >= 1024 * 1024) {
-				snprintf(proc.vsize_str, sizeof(proc.vsize_str), "%iM", (int)(proc.vsize / (1024 * 1024)));
-			} else if (proc.vsize >= 1024) {
-				snprintf(proc.vsize_str, sizeof(proc.vsize_str), "%iK", (int)(proc.vsize / 1024));
-			}
+			convert_units(proc.vsize_str, sizeof(proc.vsize_str), proc.vsize, false);
 
 			long rss = atol(fields[23]) * 4;
-			proc.mem_percent = ((float)rss / total_memory) * 100;
+			proc.mem_percent = ((float)rss / sysinfo->total_memory) * 100;
 
 			// push it to process array
 			add_process(&process_list, proc);
@@ -101,9 +91,6 @@ void add_process(ProcessList *list, Process p) {
 ProcessList copy_process_list(ProcessList *list) {
 	ProcessList new_list = {0};
 
-	new_list.prev_cpu_time = list->prev_cpu_time;
-	new_list.total_cpu_time = list->total_cpu_time;
-
 	for (int i = 0; i < (int)list->count; i++) {
 		Process proc;
 		proc.pid = (list->processes)[i].pid;
@@ -127,44 +114,6 @@ ProcessList copy_process_list(ProcessList *list) {
 	}
 
 	return new_list;
-}
-
-long get_total_memory() {
-	char line[256];
-	FILE *memory_file = fopen("/proc/meminfo", "r");
-	if (!memory_file)
-		return 0;
-
-	fgets(line, sizeof(line), memory_file);
-	fclose(memory_file);
-
-	long total_memory;
-	sscanf(line, "MemTotal: %ld kB", &total_memory);
-
-	return total_memory;
-}
-
-unsigned long long get_cpu_time() {
-	char line[256];
-	FILE *stat_file = fopen("/proc/stat", "r");
-	if (!stat_file)
-		return 1;
-
-	fgets(line, sizeof(line), stat_file);
-	fclose(stat_file);
-
-	unsigned long long total_time[10];
-	// clang-format off
-	sscanf(line, "cpu  %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu",
-			&total_time[0], &total_time[1], &total_time[2], &total_time[3], &total_time[4],
-			&total_time[5], &total_time[6], &total_time[7], &total_time[8], &total_time[9]);
-	// clang-format on
-
-	unsigned long long sum = 0;
-	for (int i = 0; i < 8; i++)
-		sum += total_time[i];
-
-	return sum;
 }
 
 void tokenize_data(char *stat_str, char **fields) {

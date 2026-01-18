@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#include "sysinfo.h"
+
 typedef struct {
 	int pid;
 	char name[256];
@@ -30,15 +32,11 @@ typedef struct {
 	Process *processes;
 	size_t count;
 	size_t capacity;
-	unsigned long long total_cpu_time;
-	unsigned long long prev_cpu_time;
 } ProcessList;
 
-ProcessList get_processes(DIR **procdir, struct dirent **nextprocdir, ProcessList *cur_list);
+ProcessList get_processes(DIR **procdir, struct dirent **nextprocdir, ProcessList *cur_list, SystemInfo *sysinfo);
 void add_process(ProcessList *list, Process p);
 ProcessList copy_process_list(ProcessList *list);
-long get_total_memory();
-unsigned long long get_cpu_time();
 void tokenize_data(char *stat_str, char **fields);
 bool check_if_process(char *dir_name);
 FILE *get_stat_file(char *pid);
