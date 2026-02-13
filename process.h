@@ -2,6 +2,7 @@
 #define PROCESS_H
 
 #include <dirent.h>
+#include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -38,6 +39,7 @@ typedef struct {
 ProcessList get_processes(DIR **procdir, struct dirent **nextprocdir, ProcessList *cur_list, SystemInfo *sysinfo);
 void add_process(ProcessList *list, Process p);
 ProcessList copy_process_list(ProcessList *list);
+void signal_process(ProcessList *list, int sig);
 void tokenize_data(char *stat_str, char **fields);
 bool check_if_process(char *dir_name);
 FILE *get_stat_file(char *pid);

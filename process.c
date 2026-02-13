@@ -120,6 +120,11 @@ ProcessList copy_process_list(ProcessList *list) {
 	return new_list;
 }
 
+void signal_process(ProcessList *list, int sig) {
+	pid_t pid = (pid_t)(list->processes)[list->selected].pid;
+	kill(pid, sig);
+}
+
 void tokenize_data(char *stat_str, char **fields) {
 	char *first_open_bracket = strchr(stat_str, '(');
 	char *last_close_bracket = strrchr(stat_str, ')');

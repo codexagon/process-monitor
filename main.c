@@ -43,6 +43,8 @@ int main() {
 		if (c == 'q' || c == 'Q') {
 			running = false;
 			break;
+		} else if (c == 'k') {
+			signal_process(&processes, SIGTERM);
 		} else if (c == '\033') {
 			int next1 = getchar();
 			int next2 = getchar();
