@@ -49,22 +49,22 @@ int main() {
 
 			if (next1 == '[') {
 				if (next2 == 'A') {
-					if (start_process > 0)
-						start_process--;
+					if (processes.selected > 0) {
+						processes.selected--;
+						if (processes.selected < start_process) {
+							start_process--;
+						}
+					}
 				} else if (next2 == 'B') {
-					if (start_process + max_processes <= (int)processes.count)
-						start_process++;
+					if (processes.selected < (int)processes.count - 1) {
+						processes.selected++;
+						if (processes.selected >= start_process + max_processes) {
+							start_process++;
+						}
+					}
 				}
 			}
-		} else if (c == 'k') {
-			if (start_process > 0)
-				start_process--;
-		} else if (c == 'j') {
-			if (start_process + max_processes <= (int)processes.count)
-				start_process++;
 		}
-
-		// printf("\033[B"); // move cursor to line 2
 
 		DIR *proc = opendir("/proc");
 		if (proc == NULL)

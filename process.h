@@ -32,6 +32,7 @@ typedef struct {
 	Process *processes;
 	size_t count;
 	size_t capacity;
+	int selected;
 } ProcessList;
 
 ProcessList get_processes(DIR **procdir, struct dirent **nextprocdir, ProcessList *cur_list, SystemInfo *sysinfo);

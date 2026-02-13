@@ -80,17 +80,25 @@ void display_processes(ProcessList *list, int start, int max) {
 			cpu_color = COLOR_RESET;
 		}
 
-		// clang-format off
-		printf("%6i  %-50s %s%1c%s %4li %s%4li%s %6i %s%6.2f%s %s%6.2f%s %6s\n",
-			p->pid, p->name, 
-			state_color, p->state, COLOR_RESET, 
-			p->priority, 
-			nice_color, p->nice, COLOR_RESET, 
-			p->ppid, 
-			mem_color, p->mem_percent, COLOR_RESET, 
-			cpu_color, p->cpu_percent, COLOR_RESET, 
-			p->vsize_str
-		);
-		// clang-format on
+		if (i == list->selected) {
+			// clang-format off
+			printf("\033[30;46m%6i  %-50s %1c %4li %4li %6i %6.2f %6.2f %6s\033[0m\n",
+				p->pid, p->name, p->state, p->priority, p->nice, p->ppid, p->mem_percent, p->cpu_percent, p->vsize_str
+			);
+			// clang-format on
+		} else {
+			// clang-format off
+			printf("%6i  %-50s %s%1c%s %4li %s%4li%s %6i %s%6.2f%s %s%6.2f%s %6s\n",
+				p->pid, p->name, 
+				state_color, p->state, COLOR_RESET, 
+				p->priority, 
+				nice_color, p->nice, COLOR_RESET, 
+				p->ppid, 
+				mem_color, p->mem_percent, COLOR_RESET, 
+				cpu_color, p->cpu_percent, COLOR_RESET, 
+				p->vsize_str
+			);
+			// clang-format on
+		}
 	}
 }

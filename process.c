@@ -10,6 +10,8 @@
 ProcessList get_processes(DIR **procdir, struct dirent **nextprocdir, ProcessList *cur_list, SystemInfo *sysinfo) {
 	ProcessList process_list = {0};
 
+	process_list.selected = cur_list->selected;
+
 	DIR *proc = *procdir;
 	struct dirent *nextproc = *nextprocdir;
 	while (nextproc != NULL) {
@@ -90,6 +92,8 @@ void add_process(ProcessList *list, Process p) {
 
 ProcessList copy_process_list(ProcessList *list) {
 	ProcessList new_list = {0};
+
+	new_list.selected = list->selected;
 
 	for (int i = 0; i < (int)list->count; i++) {
 		Process proc;
