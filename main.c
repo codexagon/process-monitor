@@ -45,6 +45,7 @@ int main() {
 			break;
 		} else if (c == 'k') {
 			signal_process(&processes, SIGTERM);
+			display_message("Terminated.", win.ws_row);
 		} else if (c == '\033') {
 			int next1 = getchar();
 			int next2 = getchar();
@@ -92,7 +93,6 @@ int main() {
 		printf("\n");
 		display_header(win.ws_col);
 		display_processes(&processes, start_process, max_processes);
-		printf("\033[J"); // clear from cursor to end
 		fflush(stdout);
 
 		closedir(proc);

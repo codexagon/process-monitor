@@ -15,5 +15,6 @@
 void display_system_info(SystemInfo info);
 void display_header(int term_cols);
 void display_processes(ProcessList *list, int start, int max);
+void display_message(char *message, int line);
 
 #endif

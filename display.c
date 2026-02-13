@@ -102,3 +102,9 @@ void display_processes(ProcessList *list, int start, int max) {
 		}
 	}
 }
+
+void display_message(char *message, int line) {
+	printf("\033[%iH\033[K", line);
+	printf("%s", message);
+	fflush(stdout);
+}
