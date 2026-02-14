@@ -51,6 +51,7 @@ int get_system_info(SystemInfo *info, SystemInfo *copy) {
 			continue;
 		}
 	}
+	fclose(stat_file);
 
 	FILE *uptime_file = fopen("/proc/uptime", "r");
 	if (!uptime_file)
@@ -58,6 +59,7 @@ int get_system_info(SystemInfo *info, SystemInfo *copy) {
 
 	fgets(line, sizeof(line), uptime_file);
 	sscanf(line, "%llu", &(info->uptime));
+	fclose(uptime_file);
 
 	return 0;
 }

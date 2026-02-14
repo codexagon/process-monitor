@@ -79,12 +79,11 @@ ProcessList get_processes(DIR **procdir, struct dirent **nextprocdir, ProcessLis
 void add_process(ProcessList *list, Process p) {
 	if (list->count >= list->capacity) {
 		list->capacity = (list->capacity == 0) ? 16 : (list->capacity * 2);
-		Process *tmp = realloc(list->processes, (list->capacity) * sizeof(Process));
-		if (tmp == NULL) {
+		list->processes = realloc(list->processes, (list->capacity) * sizeof(Process));
+		if (list->processes == NULL) {
 			printf("Failed to reallocate processes list.\n");
 			exit(EXIT_FAILURE);
 		}
-		list->processes = tmp;
 	}
 
 	(list->processes)[(list->count)++] = p;

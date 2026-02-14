@@ -103,6 +103,7 @@ int main() {
 			copy = copy_process_list(&processes);
 			free(processes.processes);
 			processes = get_processes(&proc, &nextproc, &copy, &sysinfo);
+			free(copy.processes);
 			iteration = 0;
 		}
 
