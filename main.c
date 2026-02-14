@@ -14,8 +14,11 @@
 int setup_terminal(struct termios *original_config, struct winsize *win);
 int restore_terminal(struct termios *original_config);
 
+typedef enum AppState { STATE_NORMAL, STATE_CONFIRM_KILL } State;
+
 int main() {
 	bool running = true;
+	State state = STATE_NORMAL;
 
 	struct winsize win;
 	struct termios original_config;
@@ -40,33 +43,49 @@ int main() {
 		int c = getchar();
 
 		// handle keyboard input
-		if (c == 'q' || c == 'Q') {
-			running = false;
-			break;
-		} else if (c == 'k') {
-			signal_process(&processes, SIGTERM);
-			display_message("Terminated.", win.ws_row);
-		} else if (c == '\033') {
-			int next1 = getchar();
-			int next2 = getchar();
+		switch (state) {
+		case STATE_NORMAL: {
+			if (c == 'q' || c == 'Q') {
+				running = false;
+				break;
+			} else if (c == 'k') {
+				display_message("Confirm termination of this process (y/n)", win.ws_row);
+				state = STATE_CONFIRM_KILL;
+			} else if (c == '\033') {
+				int next1 = getchar();
+				int next2 = getchar();
 
-			if (next1 == '[') {
-				if (next2 == 'A') {
-					if (processes.selected > 0) {
-						processes.selected--;
-						if (processes.selected < start_process) {
-							start_process--;
+				if (next1 == '[') {
+					if (next2 == 'A') {
+						if (processes.selected > 0) {
+							processes.selected--;
+							if (processes.selected < start_process) {
+								start_process--;
+							}
 						}
-					}
-				} else if (next2 == 'B') {
-					if (processes.selected < (int)processes.count - 1) {
-						processes.selected++;
-						if (processes.selected >= start_process + max_processes) {
-							start_process++;
+					} else if (next2 == 'B') {
+						if (processes.selected < (int)processes.count - 1) {
+							processes.selected++;
+							if (processes.selected >= start_process + max_processes) {
+								start_process++;
+							}
 						}
 					}
 				}
 			}
+			break;
+		}
+		case STATE_CONFIRM_KILL: {
+			if (c == 'y' || c == 'Y') {
+				signal_process(&processes, SIGTERM);
+				display_message("Terminated.", win.ws_row);
+				state = STATE_NORMAL;
+			} else if (c == 'n' || c == 'N' || c == '\033') {
+				display_message("Termination cancelled.", win.ws_row);
+				state = STATE_NORMAL;
+			}
+			break;
+		}
 		}
 
 		DIR *proc = opendir("/proc");
